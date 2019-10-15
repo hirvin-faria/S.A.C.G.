@@ -6,14 +6,3 @@
 .cartao-principal {
     max-width: 18rem;
 }
-
-.botao-cartao {
-    border-color: #3399ff;
-    color: #3399ff;
-}
-
-.botao-cartao:hover {
-    background-color: #3399ff;
-    color: #FFF;
-    text-decoration: none;
-}

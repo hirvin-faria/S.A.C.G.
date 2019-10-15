@@ -24,3 +24,16 @@
     font-weight: 300;
     line-height: 1.2;
 }
+
+
+
+.botao {
+    border-color: #3399ff;
+    color: #3399ff;
+}
+
+.botao:hover {
+    background-color: #3399ff;
+    color: #FFF;
+    text-decoration: none;
+}
