@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <title>S.A.C.G. - Conteúdos</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!--bootstrap css - v4.3.1-->
+        <link rel="stylesheet" href="bootstrap-4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/scga.css">
+        <link rel="stylesheet" href="css/modulo-conteudo.css">
+    </head>
+
+    <body>
+        <!-- Inicio do Cabeçalho -->
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark navbar-principal-color">
+                <a class="navbar-brand" href="index.html">S.A.C.G.</a>
+
+                <div>
+                    <button class="btn botao-navbar-sec" id="menu-toggle">Menu Lateral</button>
+                </div>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Inínio<span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Sobre</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Suporte</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contato</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Fim do Cabeçalho -->
+
+        <!-- Inicio do Conteúdo da Aplicação -->
+        <div class="d-flex" id="wrapper">
+            <div class="border-right bg-light" id="sidebar-wrapper">
+                <div class="sidebar-heading">Conteúdo</div>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Opção</a>
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Opção</a>
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Opção</a>
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Opção</a>
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Opção</a>
+                    <a href="#" class="list-group-item list-group-item-action bg-light">Opção</a>
+                </div>
+            </div>
+            <main id="page-content-wrapper">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-light">
+                        <li class="breadcrumb-item"><a href="index.html">Inicio</a></li>
+                        <li class="breadcrumb-item active"><a href="modulo-conteudo.html">Conteudos</a></li>
+                    </ol>
+                </nav>
+                <section class="container-fluid mt-4">
+                    <h2>Página em Desenvolvimento</h2>
+                </section>
+            </main>
+        </div>
+
+        <footer class="text-white p-4 rodape-bg-color">
+            <div class="container">
+                <div class="row">
+                    <div class="col-6 border-left border-light">
+                        <p class="m-0 text-left">Suporte</p>
+                        <p class="m-0 text-left">Equipe de Desenvolvimento</p>
+                        <p class="m-0 text-left">Contribua com o projeto</p>
+                        <p class="m-0 text-left">Informar um projeblema</p>
+                    </div>
+                    <div class="col-6 border-left border-light">
+                        <p class="m-0 text-left">Redes Sociais</p>
+                        <p class="m-0 text-left">GitHub</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 pt-4">
+                        <p class="m-0 text-center">Sistema em Desenvolvimento</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!--bootstrap js - v4.3.1-->
+        <script src="jquery-3.4.1/jquery-3.4.1.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="bootstrap-4.3.1/js/bootstrap.min.js"></script>
+            
+        <script>
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        </script>
+    </body>
+</html>
