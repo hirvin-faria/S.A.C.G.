@@ -1,0 +1,26 @@
+/*Arquivo CSS para Componentes gerais do sistema*/
+
+
+/*Seletores de Componentes*/
+/*Barra de Navegação Principal*/
+.navbar-principal-color{
+    background-color: #3399ff;
+}
+
+/*Rodapé do Sistema*/
+.rodape-bg-color{
+    background-color: #3399ff;
+}
+
+/*Seletores de Formatação*/
+.titulo {
+    font-size: 3.5em;
+    font-weight: 300;
+    line-height: 1.2;
+}
+
+.sub-titulo {
+    font-size: 2em;
+    font-weight: 300;
+    line-height: 1.2;
+}
