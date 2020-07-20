@@ -42,7 +42,7 @@
         <!-- Inicio do Conteúdo da Aplicação -->
         <main>
             <section class="container">
-            <img src="img/pross_img_01.jpg" alt="Imagem para Processamento">	
+            <img id="preprocss" src="img/proc_img_01.jpg" alt="Imagem para Processamento">	
             </section>
             <section></section>
         </main>
@@ -68,6 +68,14 @@
                 </div>
             </div>
         </footer>
+
+        <script type="text/javascript" src="/camanJS-4.1.1/caman.full.min.js"></script>
+        <script type="text/javascript">
+            Caman("#preprocss", function () {
+                this.brightness(30);
+                this.render();
+            });
+        </script>
 
         <!--bootstrap js - v4.3.1-->
         <script src="jquery-3.4.1/jquery-3.4.1.js"></script>
