@@ -41,6 +41,27 @@
 
         <!-- Inicio do Conteúdo da Aplicação -->
         <main>
+            <section class="container">
+                <div class="row mt-3">
+                    <div class="col-sm-12 col-md-9 col-lg-10 container-tela-pintura">
+                        <img id="preprocss" class="img-fluid" src="img/proc_img_01.jpg" alt="Imagem para Processamento">	
+                    </div>
+                    <div class="col-sm-12 col-md-3 col-lg-2 border rounded-lg">
+                        <form id="dados-primitiva" action="">
+                            <div class="form-group">
+                                <label id="brightnessVelue" for="brightness" class="mt-3">Brightness: </label>
+                                <input id="brightness" type="range" min="-100" max="100" list="tickmarks" class="form-control form-control-sm" >
+                                <label for="contrast" class="mt-3">Contrast: </label>
+                                <input id="contrast" type="range" min="-100" max="100" list="tickmarks" class="form-control form-control-sm" >
+                                <label for="saturation" class="mt-3">Saturation: </label>
+                                <input id="saturation" type="range" min="-100" max="100" list="tickmarks" class="form-control form-control-sm" >
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </section>
+            <section></section>
         </main>
 
         <footer class="text-white p-4 mt-3 rodape-bg-color">
@@ -64,6 +85,9 @@
                 </div>
             </div>
         </footer>
+
+        <script src="/camanJS-4.1.1/caman.full.min.js"></script>
+        <script src="/js/modProcessamentoImg/index.js"></script>
 
         <!--bootstrap js - v4.3.1-->
         <script src="jquery-3.4.1/jquery-3.4.1.js"></script>
