@@ -61,14 +61,26 @@
                                     3D
                                     </label>
                                 </div>
-                                <label for="posicao-x" class="mt-3">Posição X</label>
-                                <input id="posicao-x" class="form-control form-control-sm" type="text" placeholder="Posição no eixo X">
-                                <label for="posicao-y" class="mt-3">Posição Y</label>
-                                <input id="posicao-y" class="form-control form-control-sm" type="text" placeholder="Posição no eixo X">
-                                <label for="altura" class="mt-3">Altura</label>
-                                <input id="altura" class="form-control form-control-sm" type="text" placeholder="Altura da Primitiva">
-                                <label for="largura" class="mt-3">Largura</label>
-                                <input id="largura" class="form-control form-control-sm" type="text" placeholder="Largura da Primitiva">
+                                <label for="formas">Forma:</label>
+                                <select id="formas-seletor" class="custom-select">
+                                    <option value="tri">Triângulo</option>
+                                    <option value="qua">Quadrado</option>
+                                    <option value="cir">Circulo</option>
+                                </select>
+                                <label class="mt-3">Translação: </label>
+                                <label for="trans-x" class="mt-3">X</label>
+                                <input id="trans-x" class="form-control form-control-sm" type="text" placeholder="Posição no eixo X">
+                                <label for="trans-y" class="mt-3">Y</label>
+                                <input id="trans-y" class="form-control form-control-sm" type="text" placeholder="Posição no eixo Y">
+                                <label for="trans-z" class="mt-3">Z</label>
+                                <input id="trans-z" class="form-control form-control-sm" type="text" placeholder="Posição no eixo Z">
+                                <label class="mt-3">Escala:</label>
+                                <label for="escala-x" class="mt-3">X</label>
+                                <input id="escala-x" class="form-control form-control-sm" type="text" placeholder="Escala em X">
+                                <label for="escala-y" class="mt-3">Y</label>
+                                <input id="escala-y" class="form-control form-control-sm" type="text" placeholder="Escala em Y">
+                                <label for="rotacao" class="mt-3">Rotação (Graus)</label>
+                                <input id="rotacao" class="form-control form-control-sm" type="text" placeholder="Rotação">
                                 <button id="criar-primitiva" type="button" class="btn botao mt-4">Desenhar</button>
                             </div>
                         </form>
