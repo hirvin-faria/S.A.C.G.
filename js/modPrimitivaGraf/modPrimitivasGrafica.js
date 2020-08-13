@@ -1,7 +1,7 @@
 // * * * 
 // Shader Sources
 // * * *
-
+var cubeRotation = 0.0;
 // 2D Shaders
 const vertexShaderSource2d = `
     attribute vec4 aVertexPosition;
@@ -12,7 +12,7 @@ const vertexShaderSource2d = `
 
     varying lowp vec4 vColor;
 
-    void main() {
+    void main(void) {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
         vColor = aVertexColor;
     }
@@ -21,7 +21,7 @@ const fragmentShaderSource2d = `
     varying lowp vec4 vColor;
 
     void main() {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        gl_FragColor = vColor;
     }
 `;
 
@@ -48,7 +48,6 @@ function loadShader(gl, type, shaderSource){
 
     return shader;
 }
-
 // Attaches shaders and links a program from a vsSource and a fsSource
 function initializeProgram(gl, vsSource, fsSource) {
 
@@ -70,44 +69,122 @@ function initializeProgram(gl, vsSource, fsSource) {
     return program;
 }
 
-// Buffer info functions
-// Functions that create the buffer info
-// for each of the shapes
-function createTriangleBuffer(gl){
-
-    const newPosBuffer = gl.createBuffer();
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, newPosBuffer);
-
-    positions = [
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-    ];
-
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-    return {
-        positionBuffer: newPosBuffer,
-    }
+// Shape vertex positions
+// Triangle
+const shapes = {
+    triangle: {
+        positions: [
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+        ],
+        indices: [
+            0, 1, 2,
+        ],
+        vertexDimension: 2,
+        vertexCount: 3,
+    },
+    square: {
+        positions: [
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            1.0, 1.0,
+        ],
+        indices: [
+            0, 1, 2,
+            1, 2, 3,
+        ],
+        vertexDimension: 2,
+        vertexCount: 4,
+    },
+    cube: {
+        positions: [
+            // Front
+            0.0, 0.0, 1.0,
+            0.0, 1.0, 1.0,
+            1.0, 0.0, 1.0,
+            1.0, 1.0, 1.0,
+        
+            // Back
+            0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 1.0, 0.0,
+            
+            // Top
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 1.0,
+            1.0, 1.0, 0.0,
+            1.0, 1.0, 1.0,
+        
+            // Bottom
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 1.0,
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 1.0,
+            
+            // Right
+            1.0, 0.0, 0.0,
+            1.0, 0.0, 1.0,
+            1.0, 1.0, 0.0,
+            1.0, 1.0, 1.0,
+        
+            // Left
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 1.0,
+            0.0, 1.0, 0.0,
+            0.0, 1.0, 1.0,
+        ],
+        indices: [
+            0,  1,  2,    1,  2,  3,    // Front
+            4,  5,  6,    5,  6,  7,    // Back
+            8,  9,  10,   9,  10, 11,   // Top
+            12, 13, 14,   13, 14, 15,   // Bottom
+            16, 17, 18,   17, 18, 19,   // Left
+            20, 21, 22,   21, 22, 23,   // Right
+        ],
+        vertexDimension: 3,
+        vertexCount: 36,
+    },
 }
-function createSquareBuffer(gl){
 
+function createBuffer(gl, shape, colorArray) {
+
+    const vertexDimension = shape.vertexDimension;
+    const vertexCount = shape.vertexCount;
+    // Creates the position buffer
     const newPosBuffer = gl.createBuffer();
-
     gl.bindBuffer(gl.ARRAY_BUFFER, newPosBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.positions), gl.STATIC_DRAW);
 
-    positions = [
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        1.0, 1.0,
-    ];
+    // Creates a index buffer for to create the shapes
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(shape.indices), gl.STATIC_DRAW);
 
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    // Makes a color array for the buffer
+    // with the same color for all vertices
+    var colors = [];
+    for(var i = 0; i < vertexCount; i++) {
+        colorArray.forEach(function(object) {
+            colors.push(object);
+        });
+    }
+    console.log(colors.length);
+    console.log(colors);
+    // Creates the color buffer
+    const newColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, newColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
 
     return {
         positionBuffer: newPosBuffer,
+        colorBuffer: newColorBuffer,
+        indexBuffer: indexBuffer,
+        vertexDimension: vertexDimension,
+        vertexCount: vertexCount,
     }
 }
 
@@ -115,7 +192,7 @@ function createSquareBuffer(gl){
 function drawScene(gl, objectsToDraw, deltaTime){
 
     // Initial canvas setup
-    gl.clearColor(1.0, 1.0, 0.9, 1.0);
+    gl.clearColor(0.9, 0.9, 1.0, 1.0);
     gl.clearDepth(1.0);                 
     gl.enable(gl.DEPTH_TEST);          
     gl.depthFunc(gl.LEQUAL);            
@@ -146,36 +223,38 @@ function drawScene(gl, objectsToDraw, deltaTime){
         // this matrix is responsible for 
         // translation, rotations and transposition
         const modelViewMatrix = glMatrix.mat4.create();
-        const translationValues = [
-            object.transformations.translation.x,
-            object.transformations.translation.y,
-            object.transformations.translation.z-6];
 
         glMatrix.mat4.translate(
             modelViewMatrix,
             modelViewMatrix,
-            translationValues);
+            object.objectData.translationArray);
 
+        //cubeRotation += deltaTime;
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            object.transformations.rotation,
+            cubeRotation,
             [0, 0, 1]);
+        glMatrix.mat4.rotate(
+            modelViewMatrix,
+            modelViewMatrix,
+            cubeRotation * .7,
+            [0, 1, 0]);
             
         const scaleValues = [
-            object.transformations.scale.x,
-            object.transformations.scale.y,
+            object.objectData.scale.x,
+            object.objectData.scale.y,
             0];
         glMatrix.mat4.scale(
             modelViewMatrix,
             modelViewMatrix,
             scaleValues);
 
-        // Tells webgl how to pull the positions from the buffer
-        // data to the program 
+        // Tells webgl how to pull the positions from the
+        // buffer data to the program 
         // Position buffer
         {
-            const numComponents = 2;
+            const numComponents = object.bufferInfo.vertexDimension;
             const type = gl.FLOAT;
             const normalize = false;
             const stride = 0;
@@ -190,6 +269,27 @@ function drawScene(gl, objectsToDraw, deltaTime){
                 offset);
             gl.enableVertexAttribArray(object.programInfo.attribLocations.vertexPosition);
         }
+        
+        // Color buffer
+        {
+            const numComponents = 4;
+            const type = gl.FLOAT;
+            const normalize = false;
+            const stride = 0;
+            const offset = 0;
+            gl.bindBuffer(gl.ARRAY_BUFFER, object.bufferInfo.colorBuffer);
+            gl.vertexAttribPointer(
+                object.programInfo.attribLocations.vertexColor,
+                numComponents,
+                type,
+                normalize,
+                stride,
+                offset);
+            gl.enableVertexAttribArray(object.programInfo.attribLocations.vertexColor);
+        }
+
+        // Tell webgl which buffer to get to index for the element's indices
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.bufferInfo.indexBuffer);
 
         // Tell webgl to use our program when drawing
         gl.useProgram(object.programInfo.program);
@@ -206,8 +306,9 @@ function drawScene(gl, objectsToDraw, deltaTime){
             modelViewMatrix);
 
         {
+            const vertexCount = object.bufferInfo.vertexCount;
+            const type = gl.FLOAT;
             const offset = 0;
-            const vertexCount = 4;
             gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
         }
     });
@@ -237,15 +338,6 @@ function main() {
         },
     };
 
-    // DEBUG
-    /*
-    objectsToDraw.push({
-        programInfo: programInfo,
-        bufferInfo: createTriangleBuffer(gl),
-    });
-    */
-    // DEBUG
-
     var then = 0.0;
     function render(now){
         now *= 0.001;
@@ -258,24 +350,27 @@ function main() {
     }   
     requestAnimationFrame(render);
 
-    // Handles the button click
+    // Handles the Add button click
     const btnAdicionar = document.querySelector("#criar-primitiva");
     const shapeSelector = document.querySelector("#formas-seletor");
     btnAdicionar.onclick = function (){
 
         // Gets the data from the form
-        const translationX = document.querySelector("#trans-x").value;
-        const translationY = document.querySelector("#trans-y").value;
-        const translationZ = document.querySelector("#trans-z").value;
-        const scaleX = document.querySelector("#escala-x").value;
-        const scaleY = document.querySelector("#escala-y").value;
-        const rotation = document.querySelector("#rotacao").value;
-        const objTransformations = {
-            translation: {
-                x: translationX,
-                y: translationY,
-                z: translationZ,
-            },
+        const translationX = parseFloat(document.querySelector("#trans-x").value);
+        const translationY = parseFloat(document.querySelector("#trans-y").value);
+        const translationZ = parseFloat(document.querySelector("#trans-z").value);
+        const colorR = parseFloat(document.querySelector("#cor-r").value);
+        const colorG = parseFloat(document.querySelector("#cor-g").value);
+        const colorB = parseFloat(document.querySelector("#cor-b").value);
+        const alpha = 1.0;
+        const scaleX = parseFloat(document.querySelector("#escala-x").value);
+        const scaleY = parseFloat(document.querySelector("#escala-y").value);
+        const rotation = parseFloat(document.querySelector("#rotacao").value) * (Math.PI / 180);
+
+        const objData = {
+            colorArray: [colorR, colorG, colorB, alpha],
+            // * * * * REMOVER -6 
+            translationArray: [translationX, translationY, translationZ-6],
             scale: {
                 x: scaleX,
                 y: scaleY,
@@ -286,28 +381,42 @@ function main() {
         // Creates a buffer based on selected shader=pe
         const selectedShapeIndex = shapeSelector.selectedIndex;
         const selectedShape = shapeSelector.options[selectedShapeIndex].value;
-        var newBufferInfo;
+        var newShape;
         switch(selectedShapeIndex){
             case 0:
-                newBufferInfo = createTriangleBuffer(gl);
+                newShape = shapes.triangle;
                 break;
             case 1:
-                newBufferInfo = createSquareBuffer(gl);
+                newShape = shapes.square;
                 break;
             case 2:
-                newBufferInfo = createSquareBuffer(gl);
+                newShape = shapes.square;
+                break;
+            case 3:
+                newShape = shapes.cube;
+                break;
+            case 4:
+                newShape = shapes.square;
                 break;
             default:
-                newBufferInfo = createSquareBuffer(gl);
+                newShape = shapes.square;
                 break;
         }
+
+        const newBuffer = createBuffer(gl, newShape, objData.colorArray);
 
         // Pushes a new shape into objecs array
         objectsToDraw.push({
             programInfo: programInfo,
-            bufferInfo: newBufferInfo,
-            transformations: objTransformations,
+            bufferInfo: newBuffer,
+            objectData: objData,
         });
+    };
+
+    // Handles the delete button click 
+    const btnRemover = document.querySelector("#apagar-primitiva");
+    btnRemover.onclick = function (){
+        objectsToDraw.pop();
     };
 }
 
