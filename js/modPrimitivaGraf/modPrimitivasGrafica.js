@@ -224,31 +224,37 @@ function drawScene(gl, objectsToDraw, deltaTime){
         // translation, rotations and transposition
         const modelViewMatrix = glMatrix.mat4.create();
 
+        // Translate the object
         glMatrix.mat4.translate(
             modelViewMatrix,
             modelViewMatrix,
             object.objectData.translationArray);
 
         //cubeRotation += deltaTime;
+        // Rotate around the X axis
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            cubeRotation,
-            [0, 0, 1]);
+            object.objectData.rotationArray[0] + cubeRotation,
+            [1, 0, 0]);
+        // Rotate around the Y axis
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            cubeRotation * .7,
+            object.objectData.rotationArray[1] + cubeRotation * .7,
             [0, 1, 0]);
+        // Rotate around the Z axis
+        glMatrix.mat4.rotate(
+            modelViewMatrix,
+            modelViewMatrix,
+            object.objectData.rotationArray[2] + cubeRotation * .4,
+            [0, 0, 1]);
             
-        const scaleValues = [
-            object.objectData.scale.x,
-            object.objectData.scale.y,
-            0];
+        // Scale the object
         glMatrix.mat4.scale(
             modelViewMatrix,
             modelViewMatrix,
-            scaleValues);
+            object.objectData.scaleArray);
 
         // Tells webgl how to pull the positions from the
         // buffer data to the program 
@@ -315,7 +321,31 @@ function drawScene(gl, objectsToDraw, deltaTime){
 
 }
 
+// Initializes variables used throughout the execution
 var objectsToDraw = [];
+
+// Initializes constants for the page elements 
+const colorSelector = document.querySelector("#cor");
+const sliderTransX = document.querySelector("#sliderTransX");
+const sliderTransY = document.querySelector("#sliderTransY");
+const sliderTransZ = document.querySelector("#sliderTransZ");
+const sliderScaleX = document.querySelector("#sliderScaleX");
+const sliderScaleY = document.querySelector("#sliderScaleY");
+const sliderScaleZ = document.querySelector("#sliderScaleZ");
+const sliderRotationX = document.querySelector("#sliderRotationX");
+const sliderRotationY = document.querySelector("#sliderRotationY");
+const sliderRotationZ = document.querySelector("#sliderRotationZ");
+
+const labelTransX = document.querySelector("#labelTransX");
+const labelTransY = document.querySelector("#labelTransY");
+const labelTransZ = document.querySelector("#labelTransZ");
+const labelScaleX = document.querySelector("#labelScaleX");
+const labelScaleY = document.querySelector("#labelScaleY");
+const labelScaleZ = document.querySelector("#labelScaleZ");
+const labelRotationX = document.querySelector("#labelRotationX");
+const labelRotationY = document.querySelector("#labelRotationY");
+const labelRotationZ = document.querySelector("#labelRotationZ");
+
 
 // Main program
 function main() {
@@ -350,32 +380,141 @@ function main() {
     }   
     requestAnimationFrame(render);
 
+
+    // Sets the handler for the sliders
+    sliderTransX.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderTransX.value);
+
+            labelTransX.innerHTML = `Translação X: ` + newValue;
+            drawnObject.objectData.translationArray[0] = newValue;
+        }
+    });
+    sliderTransY.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderTransY.value);
+
+            labelTransY.innerHTML = `Translação Y: ` + newValue;
+            drawnObject.objectData.translationArray[1] = newValue;
+        }
+    });
+    sliderTransZ.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderTransZ.value);
+
+            labelTransZ.innerHTML = `Translação Z: ` + newValue;
+            drawnObject.objectData.translationArray[2] = newValue-6;
+        }
+    });
+    sliderScaleX.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderScaleX.value);
+
+            labelScaleX.innerHTML = `Escala X: ` + newValue;
+            drawnObject.objectData.scaleArray[0] = newValue;
+        }
+    });
+    sliderScaleY.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderScaleY.value);
+
+            labelScaleY.innerHTML = `Escala Y: ` + newValue;
+            drawnObject.objectData.scaleArray[1] = newValue;
+        }
+    });
+    sliderScaleZ.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderScaleZ.value);
+
+            labelScaleZ.innerHTML = `Escala Z: ` + newValue;
+            drawnObject.objectData.scaleArray[2] = newValue;
+        }
+    });
+    sliderRotationX.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderRotationX.value) * (Math.PI/180);
+
+            labelRotationX.innerHTML = `Rotação X: ` + sliderRotationX.value;
+            drawnObject.objectData.rotationArray[0] = newValue;
+        }
+    });
+    sliderRotationY.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderRotationY.value) * (Math.PI/180);
+
+            labelRotationY.innerHTML = `Rotação Y: ` + sliderRotationY.value;
+            drawnObject.objectData.rotationArray[1] = newValue;
+        }
+    });
+    sliderRotationZ.addEventListener("input", function(){
+        if(objectsToDraw.length > 0) {
+
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
+            const newValue = parseFloat(sliderRotationZ.value) * (Math.PI/180);
+
+            labelRotationZ.innerHTML = `Rotação Z: ` + sliderRotationZ.value;
+            drawnObject.objectData.rotationArray[2] = newValue;
+        }
+    });
+
+
     // Handles the Add button click
     const btnAdicionar = document.querySelector("#criar-primitiva");
     const shapeSelector = document.querySelector("#formas-seletor");
     btnAdicionar.onclick = function (){
 
         // Gets the data from the form
-        const translationX = parseFloat(document.querySelector("#trans-x").value);
-        const translationY = parseFloat(document.querySelector("#trans-y").value);
-        const translationZ = parseFloat(document.querySelector("#trans-z").value);
-        const colorR = parseFloat(document.querySelector("#cor-r").value);
-        const colorG = parseFloat(document.querySelector("#cor-g").value);
-        const colorB = parseFloat(document.querySelector("#cor-b").value);
+        // Color
+        const redHex = colorSelector.value[1] + colorSelector.value[2];
+        const redInt = parseInt(redHex, 16);
+        const red = redInt / 255;
+        const greenHex = colorSelector.value[3] + colorSelector.value[4];
+        const greenInt = parseInt(greenHex, 16);
+        const green = greenInt / 255;
+        const blueHex = colorSelector.value[5] + colorSelector.value[6];
+        const blueInt = parseInt(blueHex, 16);
+        const blue = blueInt / 255;
         const alpha = 1.0;
-        const scaleX = parseFloat(document.querySelector("#escala-x").value);
-        const scaleY = parseFloat(document.querySelector("#escala-y").value);
-        const rotation = parseFloat(document.querySelector("#rotacao").value) * (Math.PI / 180);
+
+        // Translation
+        const translationX = parseFloat(sliderTransX.value);
+        const translationY = parseFloat(sliderTransY.value);
+        const translationZ = parseFloat(sliderTransZ.value);
+
+        // Scale
+        const scaleX = parseFloat(sliderScaleX.value);
+        const scaleY = parseFloat(sliderScaleY.value);
+        const scaleZ = parseFloat(sliderScaleZ.value);
+
+        // Rotation
+        const rotationX = parseFloat(sliderRotationX.value) * (Math.PI / 180);
+        console.log(rotationX);
+        const rotationY = parseFloat(sliderRotationY.value) * (Math.PI / 180);
+        console.log(rotationY);
+        const rotationZ = parseFloat(sliderRotationZ.value) * (Math.PI / 180);
+        console.log(rotationZ);
 
         const objData = {
-            colorArray: [colorR, colorG, colorB, alpha],
+            colorArray: [red, green, blue, alpha],
             // * * * * REMOVER -6 
-            translationArray: [translationX, translationY, translationZ-6],
-            scale: {
-                x: scaleX,
-                y: scaleY,
-            },
-            rotation: rotation,
+            translationArray: [translationX, translationY, translationZ - 6],
+            scaleArray: [scaleX, scaleY, scaleZ],
+            rotationArray: [rotationX, rotationY, rotationZ],
         };
 
         // Creates a buffer based on selected shader=pe
