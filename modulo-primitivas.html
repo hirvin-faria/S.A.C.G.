@@ -46,49 +46,129 @@
                     <div class="col-sm-12 col-md-9 col-lg-10 container-tela-pintura">
                         <canvas id="tela-desenho" class="rounded-lg" width="1000" height="1000">Este browser não suporta o elemento canvas</canvas>
                     </div>
-                    <div class="col-sm-12 col-md-3 col-lg-2 border rounded-lg">
-                        <form id="dados-primitiva" action="">
-                            <div class="form-group">
-                                <label for="formas">Forma:</label>
-                                <select id="formas-seletor" class="custom-select">
+                    <div id="formulario" class="col-sm-12 col-md-3 col-lg-2 border rounded-lg">
+                        <!-- Translação -->
+                        <div class="container-fluid">
+                            <label>Translação:</label>
+                            <div class="row slider">
+                                <div class="col-1">X:</div>
+                                <div class="col-9">
+                                    <input id="sliderTransX" type="range" value="0" min="-3" max="3" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelTransX" for="sliderTransX">0</label>
+                                </div>
+                            </div>
+                            <div class="row slider">
+                                <div class="col-1">Y:</div>
+                                <div class="col-9">
+                                    <input id="sliderTransY" type="range" value="0" min="-3" max="3" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelTransY" for="sliderTransY">0</label>
+                                </div>
+                            </div>
+                            <div class="row slider">
+                                <div class="col-1">Z:</div>
+                                <div class="col-9">
+                                    <input id="sliderTransZ" type="range" value="0" min="-10" max="6" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelTransZ" for="sliderTransZ">0</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Escala -->
+                        <div class="container-fluid">
+                            <label>Escala: </label>
+                            <div class="row slider">
+                                <div class="col-1">X:</div>
+                                <div class="col-9">
+                                    <input id="sliderScaleX" type="range" value="1" min="0.1" max="3" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelScaleX" for="sliderScaleX">1</label>
+                                </div>
+                            </div>
+                            <div class="row slider">
+                                <div class="col-1">Y:</div>
+                                <div class="col-9">
+                                    <input id="sliderScaleY" type="range" value="1" min="0.1" max="3" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelScaleY" for="sliderScaleY">1</label>
+                                </div>
+                            </div>
+                            <div class="row slider">
+                                <div class="col-1">Z:</div>
+                                <div class="col-9">
+                                    <input id="sliderScaleZ" type="range" value="1" min="0.1" max="3" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelScaleZ" for="sliderScaleZ">1</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Rotação -->
+                        <div class="container-fluid">
+                            <label>Rotação: </label>
+                            <div class="row slider">
+                                <div class="col-1">X:</div>
+                                <div class="col-9">
+                                    <input id="sliderRotationX" type="range" value="0" min="-360" max="360" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelRotationX" for="sliderRotationX">0</label>
+                                </div>
+                            </div>
+                            <div class="row slider">
+                                <div class="col-1">Y:</div>
+                                <div class="col-9">
+                                    <input id="sliderRotationY" type="range" value="0" min="-360" max="360" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelRotationY" for="sliderRotationY">0</label>
+                                </div>
+                            </div>
+                            <div class="row slider">
+                                <div class="col-1">Z:</div>
+                                <div class="col-9">
+                                    <input id="sliderRotationZ" type="range" value="0" min="-360" max="360" step="0.01" list="tickmarks" class="form-control-range" >
+                                </div>
+                                <div class="col-2">
+                                    <label id="labelRotationZ" for="sliderRotationZ">0</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Cor -->
+                        <div class="container-fluid">
+                            <div class="row slider">
+                                <div class="col-2">Cor: </div>
+                                <div class="col-4">
+                                    <input type="color" id="cor" name="head" value="#000000">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Seletor de Formas -->
+                        <div class="container-fluid mt-2">
+                            <div class="row slider">
+                                <div class="col-4">Forma: </div>
+                                <select id="formas-seletor" class="custom-select col-8">
                                     <option value="tri">Triângulo</option>
                                     <option value="qua">Quadrado</option>
                                     <option value="cir">Circulo</option>
                                     <option value="cub">Cubo</option>
                                     <option value="pir">Pirâmide</option>
                                 </select>
-                                <!-- Cor -->
-                                <div>
-                                    <input type="color" id="cor" name="head"
-                                           value="#000000">
-                                    <label for="cor">Cor:</label>
-                                </div>
-                                <!-- Translação -->
-                                <label id="labelTransX" for="sliderTransX" class="mt-3">Translação X: </label>
-                                <input id="sliderTransX" type="range" value="0" min="-3" max="3" step="0.01" list="tickmarks" class="form-control form-control-sm" >
-                                <label id="labelTransY" for="sliderTransY" class="mt-3">Translação Y: </label>
-                                <input id="sliderTransY" type="range" value="0" min="-3" max="3" step="0.01" list="tickmarks" class="form-control form-control-sm" >
-                                <label id="labelTransZ" for="sliderTransZ" class="mt-3">Translação Z: </label>
-                                <input id="sliderTransZ" type="range" value="0" min="-3" max="3" step="0.01" list="tickmarks" class="form-control form-control-sm" >
-                                <!-- Escala -->
-                                <label id="labelScaleX" for="sliderScaleX" class="mt-3">Escala X: </label>
-                                <input id="sliderScaleX" type="range" value="1" min="0.1" max="3" step="0.01" list="tickmarks" class="form-control form-control-sm" >
-                                <label id="labelScaleY" for="sliderScaleY" class="mt-3">Escala Y: </label>
-                                <input id="sliderScaleY" type="range" value="1" min="0.1" max="3" step="0.01" list="tickmarks" class="form-control form-control-sm" >
-                                <label id="labelScaleZ" for="sliderScaleZ" class="mt-3">Escala Z: </label>
-                                <input id="sliderScaleZ" type="range" value="1" min="0.1" max="3" step="0.01" list="tickmarks" class="form-control form-control-sm" >
-                                <!-- Rotação -->
-                                <label id="labelRotationX" for="sliderRotationX" class="mt-3">Rotação X: </label>
-                                <input id="sliderRotationX" type="range" value="0" min="-360" max="360" step="0.1" list="tickmarks" class="form-control form-control-sm" >
-                                <label id="labelRotationY" for="sliderRotationY" class="mt-3">Rotação Y: </label>
-                                <input id="sliderRotationY" type="range" value="0" min="-360" max="360" step="0.1" list="tickmarks" class="form-control form-control-sm" >
-                                <label id="labelRotationZ" for="sliderRotationZ" class="mt-3">Rotação Z: </label>
-                                <input id="sliderRotationZ" type="range" value="0" min="-360" max="360" step="0.1" list="tickmarks" class="form-control form-control-sm" >
-                                <!-- Botões -->
-                                <button id="criar-primitiva" type="button" class="btn botao mt-4">Desenhar</button>
-                                <button id="apagar-primitiva" type="button" class="btn botao mt-4">Apagar</button>
                             </div>
-                        </form>
+                        </div>
+                        <!-- Botões -->
+                        <div class="container-fluid mt-2">
+                            <div class="row">
+                                <button id="criar-primitiva" type="button" class="btn botao col-6">Desenhar</button>
+                                <button id="apagar-primitiva" type="button" class="btn botao col-6">Apagar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -120,8 +200,11 @@
         <script src="jquery-3.4.1/jquery-3.4.1.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="bootstrap-4.3.1/js/bootstrap.min.js"></script>
-        
+        <!-- GLMatrix library -->
         <script src="js/modPrimitivaGraf/gl-matrix.js"></script>
+        <!-- Application files -->
+        <script src="js/modPrimitivaGraf/shaderSources.js"></script>
+        <script src="js/modPrimitivaGraf/bufferData.js"></script>
         <script src="js/modPrimitivaGraf/modPrimitivasGrafica.js"></script>
     </body>
 </html>

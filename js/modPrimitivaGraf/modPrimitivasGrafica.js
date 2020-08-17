@@ -1,35 +1,4 @@
-// * * * 
-// Shader Sources
-// * * *
 var cubeRotation = 0.0;
-// 2D Shaders
-const vertexShaderSource2d = `
-    attribute vec4 aVertexPosition;
-    attribute vec4 aVertexColor;
-
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-
-    varying lowp vec4 vColor;
-
-    void main(void) {
-        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        vColor = aVertexColor;
-    }
-`;
-const fragmentShaderSource2d = `
-    varying lowp vec4 vColor;
-
-    void main() {
-        gl_FragColor = vColor;
-    }
-`;
-
-
-// 3D Shaders
-const vertexShaderSource3d = ``
-const fragmentShaderSource3d = ``;
-
 
 // Loads and compiles a shader of a given type from a source
 function loadShader(gl, type, shaderSource){
@@ -69,100 +38,50 @@ function initializeProgram(gl, vsSource, fsSource) {
     return program;
 }
 
-// Shape vertex positions
-// Triangle
-const shapes = {
-    triangle: {
-        positions: [
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-        ],
-        indices: [
-            0, 1, 2,
-        ],
-        vertexDimension: 2,
-        vertexCount: 3,
-    },
-    square: {
-        positions: [
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 1.0,
-            1.0, 1.0,
-        ],
-        indices: [
-            0, 1, 2,
-            1, 2, 3,
-        ],
-        vertexDimension: 2,
-        vertexCount: 4,
-    },
-    cube: {
-        positions: [
-            // Front
-            0.0, 0.0, 1.0,
-            0.0, 1.0, 1.0,
-            1.0, 0.0, 1.0,
-            1.0, 1.0, 1.0,
-        
-            // Back
-            0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0,
-            1.0, 0.0, 0.0,
-            1.0, 1.0, 0.0,
-            
-            // Top
-            0.0, 1.0, 0.0,
-            0.0, 1.0, 1.0,
-            1.0, 1.0, 0.0,
-            1.0, 1.0, 1.0,
-        
-            // Bottom
-            0.0, 0.0, 0.0,
-            0.0, 0.0, 1.0,
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 1.0,
-            
-            // Right
-            1.0, 0.0, 0.0,
-            1.0, 0.0, 1.0,
-            1.0, 1.0, 0.0,
-            1.0, 1.0, 1.0,
-        
-            // Left
-            0.0, 0.0, 0.0,
-            0.0, 0.0, 1.0,
-            0.0, 1.0, 0.0,
-            0.0, 1.0, 1.0,
-        ],
-        indices: [
-            0,  1,  2,    1,  2,  3,    // Front
-            4,  5,  6,    5,  6,  7,    // Back
-            8,  9,  10,   9,  10, 11,   // Top
-            12, 13, 14,   13, 14, 15,   // Bottom
-            16, 17, 18,   17, 18, 19,   // Left
-            20, 21, 22,   21, 22, 23,   // Right
-        ],
-        vertexDimension: 3,
-        vertexCount: 36,
-    },
+// This function returns a list of shader programs that 
+// will be used throughout the application
+function createProgramList(gl) {
+
+    const shaderProgramGeneric = initializeProgram(gl, vertexShaderSourceGeneric, fragmentShaderSourceGeneric);
+    const shaderProgramGenericInfo = {
+        program: shaderProgramGeneric,
+        attribLocations: {
+            vertexPosition: gl.getAttribLocation(shaderProgramGeneric, "aVertexPosition"),
+            vertexColor: gl.getAttribLocation(shaderProgramGeneric, "aVertexColor"),
+        },
+        uniformLocations: {
+            projectionMatrix: gl.getUniformLocation(shaderProgramGeneric, "uProjectionMatrix"),
+            modelViewMatrix: gl.getUniformLocation(shaderProgramGeneric, "uModelViewMatrix"),
+        },
+    };
+
+    const shaderProgramCircle = initializeProgram(gl, vertexShaderSourceCircle, fragmentShaderSourceGeneric);
+    const shaderProgramCircleInfo = {
+        program: shaderProgramCircle,
+        attribLocations: {
+            vertexId: gl.getAttribLocation(shaderProgramCircle, "aVertexId"),
+            vertexColor: gl.getAttribLocation(shaderProgramCircle, "aVertexColor"),
+        },
+        uniformLocations: {
+            projectionMatrix: gl.getUniformLocation(shaderProgramCircle, "uProjectionMatrix"),
+            modelViewMatrix: gl.getUniformLocation(shaderProgramCircle, "uModelViewMatrix"),
+            numVerts: gl.getUniformLocation(shaderProgramCircle, "uNumVerts"),
+            resolution: gl.getUniformLocation(shaderProgramCircle, "uResolution"),
+        },
+    };
+
+
+    return {
+        shaderProgramGeneric: shaderProgramGenericInfo,
+        shaderProgramCircle: shaderProgramCircleInfo,
+    }
 }
 
 function createBuffer(gl, shape, colorArray) {
 
     const vertexDimension = shape.vertexDimension;
     const vertexCount = shape.vertexCount;
-    // Creates the position buffer
-    const newPosBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, newPosBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.positions), gl.STATIC_DRAW);
-
-    // Creates a index buffer for to create the shapes
-    const indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(shape.indices), gl.STATIC_DRAW);
-
+    
     // Makes a color array for the buffer
     // with the same color for all vertices
     var colors = [];
@@ -171,20 +90,50 @@ function createBuffer(gl, shape, colorArray) {
             colors.push(object);
         });
     }
-    console.log(colors.length);
-    console.log(colors);
     // Creates the color buffer
     const newColorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, newColorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
+    // The buffer data is different if the shape is a circle
+    if (shape == shapes.circle) {
 
-    return {
-        positionBuffer: newPosBuffer,
-        colorBuffer: newColorBuffer,
-        indexBuffer: indexBuffer,
-        vertexDimension: vertexDimension,
-        vertexCount: vertexCount,
+        // Creates positions buffer
+        const numVerts = vertexCount * 3;
+        const vertexIds = new Float32Array(numVerts);
+        vertexIds.forEach((v, i) => {
+            vertexIds[i] = i;
+        });
+        const newPosBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, newPosBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexIds, gl.STATIC_DRAW);
+
+        return {
+            positionBuffer: newPosBuffer,
+            colorBuffer: newColorBuffer,
+            vertexDimension: vertexDimension,
+            vertexCount: vertexCount,
+        }
+
+    } else {
+
+        // Creates the position buffer
+        const newPosBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, newPosBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.positions), gl.STATIC_DRAW);
+
+        // Creates a index buffer for to create the shapes
+        const indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(shape.indices), gl.STATIC_DRAW);
+
+        return {
+            positionBuffer: newPosBuffer,
+            colorBuffer: newColorBuffer,
+            indexBuffer: indexBuffer,
+            vertexDimension: vertexDimension,
+            vertexCount: vertexCount,
+        }
     }
 }
 
@@ -200,9 +149,13 @@ function drawScene(gl, objectsToDraw, deltaTime){
     // Clear the canvas before drawing
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+
     // Drawing loop for each object to draw
     objectsToDraw.forEach(function (object){
-        console.log("Desenhando");
+        
+        // Tell webgl to use our program when drawing
+        gl.useProgram(object.programInfo.program);
+
         // Create the projection matrix
         // this matrix is responsible for the 
         // camera view on the object
@@ -230,24 +183,23 @@ function drawScene(gl, objectsToDraw, deltaTime){
             modelViewMatrix,
             object.objectData.translationArray);
 
-        //cubeRotation += deltaTime;
         // Rotate around the X axis
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            object.objectData.rotationArray[0] + cubeRotation,
+            object.objectData.rotationArray[0],
             [1, 0, 0]);
         // Rotate around the Y axis
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            object.objectData.rotationArray[1] + cubeRotation * .7,
+            object.objectData.rotationArray[1],
             [0, 1, 0]);
         // Rotate around the Z axis
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            object.objectData.rotationArray[2] + cubeRotation * .4,
+            object.objectData.rotationArray[2],
             [0, 0, 1]);
             
         // Scale the object
@@ -256,26 +208,9 @@ function drawScene(gl, objectsToDraw, deltaTime){
             modelViewMatrix,
             object.objectData.scaleArray);
 
+        
         // Tells webgl how to pull the positions from the
         // buffer data to the program 
-        // Position buffer
-        {
-            const numComponents = object.bufferInfo.vertexDimension;
-            const type = gl.FLOAT;
-            const normalize = false;
-            const stride = 0;
-            const offset = 0;
-            gl.bindBuffer(gl.ARRAY_BUFFER, object.bufferInfo.positionBuffer);
-            gl.vertexAttribPointer(
-                object.programInfo.attribLocations.vertexPosition,
-                numComponents,
-                type,
-                normalize,
-                stride,
-                offset);
-            gl.enableVertexAttribArray(object.programInfo.attribLocations.vertexPosition);
-        }
-        
         // Color buffer
         {
             const numComponents = 4;
@@ -293,13 +228,59 @@ function drawScene(gl, objectsToDraw, deltaTime){
                 offset);
             gl.enableVertexAttribArray(object.programInfo.attribLocations.vertexColor);
         }
-
-        // Tell webgl which buffer to get to index for the element's indices
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.bufferInfo.indexBuffer);
-
-        // Tell webgl to use our program when drawing
-        gl.useProgram(object.programInfo.program);
         
+        // Attributes and uniforms that are set in case the program wants to draw a circle
+        if(object.programInfo == programList.shaderProgramCircle){
+            
+            // Vertex id buffer 
+            {
+                const numComponents = object.bufferInfo.vertexDimension;
+                const type = gl.FLOAT;
+                const normalize = false;
+                const offset = 0;
+                const stride = 0;
+                gl.bindBuffer(gl.ARRAY_BUFFER, object.bufferInfo.positionBuffer);
+                gl.vertexAttribPointer(
+                    object.programInfo.attribLocations.vertexId,
+                    numComponents,
+                    type,
+                    normalize,
+                    offset,
+                    stride);
+                gl.enableVertexAttribArray(object.programInfo.attribLocations.vertexId);
+            }
+
+            // Tell the shader the number of vertices
+            gl.uniform1f(object.programInfo.uniformLocations.numVerts, object.bufferInfo.vertexCount);
+            // Tell the shader the resolution
+            gl.uniform2f(object.programInfo.uniformLocations.resolution, gl.canvas.width, gl.canvas.height);
+
+        // Attributes and uniforms for the generic shapes
+        } else {
+
+            // Position buffer
+            {
+                const numComponents = object.bufferInfo.vertexDimension;
+                const type = gl.FLOAT;
+                const normalize = false;
+                const stride = 0;
+                const offset = 0;
+                gl.bindBuffer(gl.ARRAY_BUFFER, object.bufferInfo.positionBuffer);
+                gl.vertexAttribPointer(
+                    object.programInfo.attribLocations.vertexPosition,
+                    numComponents,
+                    type,
+                    normalize,
+                    stride,
+                    offset);
+                gl.enableVertexAttribArray(object.programInfo.attribLocations.vertexPosition);
+            }
+            
+
+            // Tell webgl which buffer to get to index for the element's indices
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, object.bufferInfo.indexBuffer);
+        }
+
 
         // Set the shader uniforms
         gl.uniformMatrix4fv(
@@ -311,11 +292,17 @@ function drawScene(gl, objectsToDraw, deltaTime){
             false,
             modelViewMatrix);
 
-        {
+        if(object.programInfo == programList.shaderProgramCircle){
             const vertexCount = object.bufferInfo.vertexCount;
-            const type = gl.FLOAT;
             const offset = 0;
-            gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+            gl.drawArrays(gl.TRIANGLES, offset, vertexCount);
+        }
+        else {
+
+            const vertexCount = object.bufferInfo.vertexCount;
+            const type = gl.UNSIGNED_SHORT;
+            const offset = 0;
+            gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
         }
     });
 
@@ -346,27 +333,16 @@ const labelRotationX = document.querySelector("#labelRotationX");
 const labelRotationY = document.querySelector("#labelRotationY");
 const labelRotationZ = document.querySelector("#labelRotationZ");
 
+// Loads the program and stores info
+var programList;
 
 // Main program
 function main() {
 
     // Gets the gl context from the canvas
-    const canvas = document.querySelector("#tela-desenho");
-    const gl = canvas.getContext("webgl");
+    const gl = document.querySelector("#tela-desenho").getContext("webgl");
 
-    // Loads the program and stores info
-    const shaderProgram2d = initializeProgram(gl, vertexShaderSource2d, fragmentShaderSource2d);
-    const programInfo = {
-        program: shaderProgram2d,
-        attribLocations: {
-            vertexPosition: gl.getAttribLocation(shaderProgram2d, "aVertexPosition"),
-            vertexColor: gl.getAttribLocation(shaderProgram2d, "aVertexColor"),
-        },
-        uniformLocations: {
-            projectionMatrix: gl.getUniformLocation(shaderProgram2d, "uProjectionMatrix"),
-            modelViewMatrix: gl.getUniformLocation(shaderProgram2d, "uModelViewMatrix"),
-        },
-    };
+    programList = createProgramList(gl)
 
     var then = 0.0;
     function render(now){
@@ -382,92 +358,121 @@ function main() {
 
 
     // Sets the handler for the sliders
-    sliderTransX.addEventListener("input", function(){
+    colorSelector.addEventListener("input", function(){
+
+        const redHex = colorSelector.value[1] + colorSelector.value[2];
+        const redInt = parseInt(redHex, 16);
+        const red = redInt / 255;
+        const greenHex = colorSelector.value[3] + colorSelector.value[4];
+        const greenInt = parseInt(greenHex, 16);
+        const green = greenInt / 255;
+        const blueHex = colorSelector.value[5] + colorSelector.value[6];
+        const blueInt = parseInt(blueHex, 16);
+        const blue = blueInt / 255;
+        const alpha = 1.0;
+
+        const newValue = [red, green, blue, alpha];
+
         if(objectsToDraw.length > 0) {
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderTransX.value);
+            drawnObject.objectData.colorArray = newValue;
+        }
+    });
+    sliderTransX.addEventListener("input", function(){
 
-            labelTransX.innerHTML = `Translação X: ` + newValue;
+        const newValue = parseFloat(sliderTransX.value);
+        labelTransX.innerHTML = Number((newValue).toFixed(1));
+
+        if(objectsToDraw.length > 0) {
+            const drawnObject = objectsToDraw[objectsToDraw.length-1];
             drawnObject.objectData.translationArray[0] = newValue;
         }
     });
     sliderTransY.addEventListener("input", function(){
+        
+        const newValue = parseFloat(sliderTransY.value);
+        labelTransY.innerHTML = Number((newValue).toFixed(1));
+
         if(objectsToDraw.length > 0) {
 
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderTransY.value);
-
-            labelTransY.innerHTML = `Translação Y: ` + newValue;
             drawnObject.objectData.translationArray[1] = newValue;
         }
     });
     sliderTransZ.addEventListener("input", function(){
+
+        const newValue = parseFloat(sliderTransZ.value);
+        labelTransZ.innerHTML = Number((newValue).toFixed(1));
+
         if(objectsToDraw.length > 0) {
 
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderTransZ.value);
-
-            labelTransZ.innerHTML = `Translação Z: ` + newValue;
-            drawnObject.objectData.translationArray[2] = newValue-6;
+            drawnObject.objectData.translationArray[2] = newValue-9;
         }
     });
     sliderScaleX.addEventListener("input", function(){
+        
+        const newValue = parseFloat(sliderScaleX.value);
+        labelScaleX.innerHTML = Number((newValue).toFixed(1));
+
         if(objectsToDraw.length > 0) {
 
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderScaleX.value);
-
-            labelScaleX.innerHTML = `Escala X: ` + newValue;
             drawnObject.objectData.scaleArray[0] = newValue;
         }
     });
     sliderScaleY.addEventListener("input", function(){
+
+        const newValue = parseFloat(sliderScaleY.value);
+        labelScaleY.innerHTML = Number((newValue).toFixed(1));
+
         if(objectsToDraw.length > 0) {
 
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderScaleY.value);
-
-            labelScaleY.innerHTML = `Escala Y: ` + newValue;
             drawnObject.objectData.scaleArray[1] = newValue;
         }
     });
     sliderScaleZ.addEventListener("input", function(){
+
+        const newValue = parseFloat(sliderScaleZ.value);
+        labelScaleZ.innerHTML = Number((newValue).toFixed(1));
+
         if(objectsToDraw.length > 0) {
 
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderScaleZ.value);
-
-            labelScaleZ.innerHTML = `Escala Z: ` + newValue;
             drawnObject.objectData.scaleArray[2] = newValue;
         }
     });
     sliderRotationX.addEventListener("input", function(){
+
+        const newValue = parseFloat(sliderRotationX.value) * (Math.PI/180);
+        labelRotationX.innerHTML = Math.round(sliderRotationX.value);
+
         if(objectsToDraw.length > 0) {
 
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderRotationX.value) * (Math.PI/180);
-
-            labelRotationX.innerHTML = `Rotação X: ` + sliderRotationX.value;
             drawnObject.objectData.rotationArray[0] = newValue;
         }
     });
     sliderRotationY.addEventListener("input", function(){
+
+        const newValue = parseFloat(sliderRotationY.value) * (Math.PI/180);
+        labelRotationY.innerHTML = Math.round(sliderRotationY.value);
+
         if(objectsToDraw.length > 0) {
 
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderRotationY.value) * (Math.PI/180);
-
-            labelRotationY.innerHTML = `Rotação Y: ` + sliderRotationY.value;
             drawnObject.objectData.rotationArray[1] = newValue;
         }
     });
     sliderRotationZ.addEventListener("input", function(){
+
+        const newValue = parseFloat(sliderRotationZ.value) * (Math.PI/180);
+        labelRotationZ.innerHTML = Math.round(sliderRotationZ.value);
+
         if(objectsToDraw.length > 0) {
 
             const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            const newValue = parseFloat(sliderRotationZ.value) * (Math.PI/180);
-
-            labelRotationZ.innerHTML = `Rotação Z: ` + sliderRotationZ.value;
             drawnObject.objectData.rotationArray[2] = newValue;
         }
     });
@@ -512,7 +517,7 @@ function main() {
         const objData = {
             colorArray: [red, green, blue, alpha],
             // * * * * REMOVER -6 
-            translationArray: [translationX, translationY, translationZ - 6],
+            translationArray: [translationX, translationY, translationZ - 9],
             scaleArray: [scaleX, scaleY, scaleZ],
             rotationArray: [rotationX, rotationY, rotationZ],
         };
@@ -520,25 +525,32 @@ function main() {
         // Creates a buffer based on selected shader=pe
         const selectedShapeIndex = shapeSelector.selectedIndex;
         const selectedShape = shapeSelector.options[selectedShapeIndex].value;
+        var programInfo;
         var newShape;
         switch(selectedShapeIndex){
             case 0:
                 newShape = shapes.triangle;
+                programInfo = programList.shaderProgramGeneric;
                 break;
             case 1:
                 newShape = shapes.square;
+                programInfo = programList.shaderProgramGeneric;
                 break;
             case 2:
-                newShape = shapes.square;
+                newShape = shapes.circle;
+                programInfo = programList.shaderProgramCircle;
                 break;
             case 3:
                 newShape = shapes.cube;
+                programInfo = programList.shaderProgramGeneric;
                 break;
             case 4:
-                newShape = shapes.square;
+                newShape = shapes.pyramid;
+                programInfo = programList.shaderProgramGeneric;
                 break;
             default:
                 newShape = shapes.square;
+                programInfo = programList.shaderProgramGeneric;
                 break;
         }
 

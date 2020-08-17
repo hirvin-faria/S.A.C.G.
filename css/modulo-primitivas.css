@@ -4,3 +4,15 @@
     background-color: #f7f7f7;
     border: 2px solid #3399ff;
 }
+
+#formulario {
+    padding: 0px;
+}
+
+.slider > * {
+    padding: 0px 0px 0px 0px;
+    display: flex;
+    justify-content: center;
+    text-align: center ;
+}
+
