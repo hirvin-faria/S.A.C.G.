@@ -1,6 +1,185 @@
-var cubeRotation = 0.0;
+// Main code
+function main() {
 
-// Loads and compiles a shader of a given type from a source
+    // Gets the gl context from the canvas
+    const gl = document.querySelector("#tela-desenho").getContext("webgl");
+
+
+    // Grabs All page elements
+    pageElementsInfo.forEach(function(element){
+
+        // If id is not empty, create new 
+        // object with element data
+        if(element.id != "") {
+
+            var elementLabel = "";
+            var elementValueDisplay = "";
+
+            if(element.label != "")
+                elementLabel = document.querySelector("#" + element.label);
+            if(element.valueDisplay != "")
+                elementValueDisplay = document.querySelector("#" + element.valueDisplay);
+            
+
+            pageElements[element.id] = {
+                element: document.querySelector("#" + element.id),
+                label: elementLabel,
+                valueDisplay: elementValueDisplay,
+                type: getFirstWord(element.id),
+            };
+        }
+    });
+    // pageElements.sliderTransX.element...
+
+    // Grabs camera angle values
+    cameraInfo = {
+        angleRadiansX: sliderCameraX.value,
+        angleRadiansY: sliderCameraY.value,
+        angleRadiansZ: sliderCameraZ.value,
+    }
+
+    // Creates the program list
+    programList = createProgramList(gl);
+
+    // Main rendering loop
+    var then = 0.0;
+    function render(now){
+        now *= 0.001;
+        const deltaTime = now - then;
+        then = now;
+
+        drawScene(gl, shapesToDraw, deltaTime);
+
+        requestAnimationFrame(render);
+    }   
+    requestAnimationFrame(render);
+
+
+    // Sets up all page elements listeners
+    pageElementsInfo.forEach(function(element){
+        
+        // Grabs the individual element information
+        var element = pageElements[element.id].element;
+        var valueDisplay = pageElements[element.id].valueDisplay;
+        var type = pageElements[element.id].type;
+        var dataType = removeFirstWord(element.id);
+        var newValue = 0;
+
+        // Sets up according to the type of element
+        switch(type){
+            case "slider":
+             
+                element.addEventListener("input", function() {
+
+                    // Updates the slider's display
+                    // If the value has more than 3 digits, round it 
+                    if(element.value >= 100 || element.value <= -100)
+                        newValue = Math.round(element.value * 10) / 10;
+                    else 
+                        newValue = element.value;
+
+                    valueDisplay.innerHTML = newValue;
+
+                    // Updates camera 
+                    if (getFirstWord(dataType) == "camera") {
+                        switch(dataType) {
+                            case "cameraX":
+                                cameraInfo.angleRadiansX = degreeToRadians(element.value);
+                                break;
+                            case "cameraY":
+                                cameraInfo.angleRadiansY = degreeToRadians(element.value);
+                                break;
+                            case "cameraZ":
+                                cameraInfo.angleRadiansZ = degreeToRadians(element.value);
+                                break;
+                        }
+                    }
+
+                    // Updates shape data, if any
+                    if(shapesToDraw.length > 0) {
+                        if (getFirstWord(dataType) == "rotation")
+                            shapesToDraw[selectedShapeIndex].objectData[dataType] = degreeToRadians(element.value);
+                        else 
+                            shapesToDraw[selectedShapeIndex].objectData[dataType] = element.value;
+            
+                    }
+
+
+                });
+                break;
+        }
+    });
+    
+
+    // Handles the Add button click
+    pageElements.buttonCreate.element.onclick = function (){
+
+        // Puts the initial shape data into an object
+        const shapeData = getShapeData(pageElementsInfo, pageElements);
+        console.log(shapeData);
+        
+
+        // Creates a buffer based on selected shader=pe
+        const selector = pageElements["selectorShape"].element;
+        const shapeTypeSelectorIndex = selector.selectedIndex;
+        //var selectedShape = selector.options[selectedShapeIndex].value;
+        var programInfo;
+        var newShape;
+        switch(shapeTypeSelectorIndex){
+            case 0:
+                newShape = shapes.triangle;
+                programInfo = programList.shaderProgramGeneric;
+                break;
+            case 1:
+                newShape = shapes.square;
+                programInfo = programList.shaderProgramGeneric;
+                break;
+            case 2:
+                newShape = shapes.circle;
+                programInfo = programList.shaderProgramCircle;
+                break;
+            case 3:
+                newShape = shapes.cube;
+                programInfo = programList.shaderProgramGeneric;
+                break;
+            case 4:
+                newShape = shapes.pyramid;
+                programInfo = programList.shaderProgramGeneric;
+                break;
+            default:
+                newShape = shapes.square;
+                programInfo = programList.shaderProgramGeneric;
+                break;
+        }
+
+        // Creates a new buffer with the given information
+        console.log(shapeData.hueSelector);
+        const newBuffer = createBuffer(gl, newShape, shapeData.hueSelector);
+
+        // Pushes a new shape into objecs array
+        shapesToDraw.push({
+            programInfo: programInfo,
+            bufferInfo: newBuffer,
+            objectData: shapeData,
+            shapeId: numShapes,
+        });
+
+        // Selects the newest added shape. Its ID is the number of shapes
+        selectedShapeIndex = numShapes;
+
+        // Increments the number of shapes
+        numShapes += 1;
+    };
+
+    // Handles the delete button click 
+    pageElements.buttonRemove.element.onclick = function (){
+        shapesToDraw.pop();
+    };
+}
+
+
+// Loads and compiles a shader of 
+// a given type from a source
 function loadShader(gl, type, shaderSource){
 
     const shader = gl.createShader(type);
@@ -17,7 +196,9 @@ function loadShader(gl, type, shaderSource){
 
     return shader;
 }
-// Attaches shaders and links a program from a vsSource and a fsSource
+
+// Attaches shaders and links a program 
+// from a vsSource and a fsSource
 function initializeProgram(gl, vsSource, fsSource) {
 
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
@@ -75,6 +256,66 @@ function createProgramList(gl) {
         shaderProgramGeneric: shaderProgramGenericInfo,
         shaderProgramCircle: shaderProgramCircleInfo,
     }
+}
+
+
+// Returns the first word of a camel case string
+function getFirstWord(camelCaseString){
+
+    var firstWord = "";
+
+    for (var i = 0; i < camelCaseString.length; i++) {
+
+        if(camelCaseString[i] != camelCaseString[i].toUpperCase())
+            firstWord += camelCaseString[i];
+        else
+            break;
+    }
+
+    return firstWord;
+}
+
+// Returns the same string with the first word removed
+function removeFirstWord(camelCaseString){
+
+    var result = "";
+
+    var i = 0;
+    for(i = 0; i < camelCaseString.length; i++) {
+
+        if(camelCaseString[i] == camelCaseString[i].toUpperCase()){
+            result += camelCaseString[i].toLowerCase();
+            i++;
+            break;
+        }
+    }
+
+    result += camelCaseString.substring(i, camelCaseString.length);
+    return result;
+}
+
+// Converts a degree value to radians
+function degreeToRadians(degrees){
+    return degrees * (Math.PI/180);
+}
+
+// Takes a hexadecimal RGBA string and turn into an 
+// array with values from 0.0 to 1.0
+// Example: "#ffffff" -> [1.0, 1.0, 1.0, 1.0]
+function hexRgbaToArray(rgbaString){
+
+    const redHex = rgbaString[1] + rgbaString[2];
+    const redInt = parseInt(redHex, 16);
+    const red = redInt / 255;
+    const greenHex = rgbaString[3] + rgbaString[4];
+    const greenInt = parseInt(greenHex, 16);
+    const green = greenInt / 255;
+    const blueHex = rgbaString[5] + rgbaString[6];
+    const blueInt = parseInt(blueHex, 16);
+    const blue = blueInt / 255;
+    const alpha = 1.0;
+
+    return [red, green, blue, alpha];
 }
 
 function createBuffer(gl, shape, colorArray) {
@@ -138,77 +379,125 @@ function createBuffer(gl, shape, colorArray) {
 }
 
 // Drawing function
-function drawScene(gl, objectsToDraw, deltaTime){
+function drawScene(gl, shapesToDraw, deltaTime){
 
-    // Initial canvas setup
+    // Initial canvas setup for the canvas
+    // this gives the scene a clear color
     gl.clearColor(0.9, 0.9, 1.0, 1.0);
     gl.clearDepth(1.0);                 
     gl.enable(gl.DEPTH_TEST);          
     gl.depthFunc(gl.LEQUAL);            
-
-    // Clear the canvas before drawing
+    // Clears the canvas before drawing
+    // using the parameters above
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
+    // Create the projection matrix
+    // This matrix is the same for all objects in the scene
+    const projectionMatrix = glMatrix.mat4.create();
+    const fieldOfView = degreeToRadians(45);
+    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    const zNear = 0.1;
+    const zFar = 100;
+    glMatrix.mat4.perspective(
+        projectionMatrix,
+        fieldOfView,
+        aspect,
+        zNear,
+        zFar);
+
+    // Creates the camera matrix
+    // and rotates with the camera info 
+    // we have
+    const cameraMatrix = glMatrix.mat4.create();
+    glMatrix.mat4.rotateX(
+        cameraMatrix,
+        cameraMatrix,
+        cameraInfo.angleRadiansX);
+    glMatrix.mat4.rotateY(
+        cameraMatrix,
+        cameraMatrix,
+        cameraInfo.angleRadiansY);
+    glMatrix.mat4.rotateZ(
+        cameraMatrix,
+        cameraMatrix,
+        cameraInfo.angleRadiansZ);
+
+    // Creates the view matrix, which is
+    // the inverse of the camera matrix
+    const modelViewMatrix = cameraMatrix;
+    glMatrix.mat4.invert(modelViewMatrix, cameraMatrix);
+
+    // Create the view projection matrix, which is 
+    // a combination (multiplication) of the
+    // projection and view matricies
+    //const viewProjectionMatrix = glMatrix.mat4.create();
+    //glMatrix.mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
+
+
+
     // Drawing loop for each object to draw
-    objectsToDraw.forEach(function (object){
+    shapesToDraw.forEach(function (object){
         
-        // Tell webgl to use our program when drawing
+        // Tell webgl to use the program designated
+        // for the object when drawing
         gl.useProgram(object.programInfo.program);
 
-        // Create the projection matrix
-        // this matrix is responsible for the 
-        // camera view on the object
-        const projectionMatrix = glMatrix.mat4.create();
-        const fieldOfView = 45 * Math.PI/180;
-        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-        const zNear = 0.1;
-        const zFar = 100;
-        
-        glMatrix.mat4.perspective(
-            projectionMatrix,
-            fieldOfView,
-            aspect,
-            zNear,
-            zFar);
+        // Puts the object data in convenient variables
+        const translationX = object.objectData.transX;
+        const translationY = object.objectData.transY;
+        const translationZ = object.objectData.transZ-9;
+        const translationArray = [translationX, translationY, translationZ];
+
+        const rotationX = object.objectData.rotationX;
+        const rotationY = object.objectData.rotationY;
+        const rotationZ = object.objectData.rotationZ;
+
+        const scaleX = object.objectData.scaleX;
+        const scaleY = object.objectData.scaleY;
+        const scaleZ = object.objectData.scaleZ;
+        const scaleArray = [scaleX, scaleY, scaleZ];
+
+        // Creates the view matrix for the object
 
         // Creates the model view matrix
         // this matrix is responsible for 
         // translation, rotations and transposition
-        const modelViewMatrix = glMatrix.mat4.create();
-
+        //const modelViewMatrix = glMatrix.mat4.create();
+        //
         // Translate the object
         glMatrix.mat4.translate(
             modelViewMatrix,
             modelViewMatrix,
-            object.objectData.translationArray);
-
+            translationArray);
+        //
         // Rotate around the X axis
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            object.objectData.rotationArray[0],
+            rotationX,
             [1, 0, 0]);
         // Rotate around the Y axis
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            object.objectData.rotationArray[1],
+            rotationY,
             [0, 1, 0]);
         // Rotate around the Z axis
         glMatrix.mat4.rotate(
             modelViewMatrix,
             modelViewMatrix,
-            object.objectData.rotationArray[2],
+            rotationZ,
             [0, 0, 1]);
-            
+        //
         // Scale the object
         glMatrix.mat4.scale(
             modelViewMatrix,
             modelViewMatrix,
-            object.objectData.scaleArray);
+            scaleArray);
 
         
+        // * * * Begin setting up attributes below * * * 
         // Tells webgl how to pull the positions from the
         // buffer data to the program 
         // Color buffer
@@ -308,267 +597,160 @@ function drawScene(gl, objectsToDraw, deltaTime){
 
 }
 
+var cubeRotation = 0.0;
 // Initializes variables used throughout the execution
-var objectsToDraw = [];
-
-// Initializes constants for the page elements 
-const colorSelector = document.querySelector("#cor");
-const sliderTransX = document.querySelector("#sliderTransX");
-const sliderTransY = document.querySelector("#sliderTransY");
-const sliderTransZ = document.querySelector("#sliderTransZ");
-const sliderScaleX = document.querySelector("#sliderScaleX");
-const sliderScaleY = document.querySelector("#sliderScaleY");
-const sliderScaleZ = document.querySelector("#sliderScaleZ");
-const sliderRotationX = document.querySelector("#sliderRotationX");
-const sliderRotationY = document.querySelector("#sliderRotationY");
-const sliderRotationZ = document.querySelector("#sliderRotationZ");
-
-const labelTransX = document.querySelector("#labelTransX");
-const labelTransY = document.querySelector("#labelTransY");
-const labelTransZ = document.querySelector("#labelTransZ");
-const labelScaleX = document.querySelector("#labelScaleX");
-const labelScaleY = document.querySelector("#labelScaleY");
-const labelScaleZ = document.querySelector("#labelScaleZ");
-const labelRotationX = document.querySelector("#labelRotationX");
-const labelRotationY = document.querySelector("#labelRotationY");
-const labelRotationZ = document.querySelector("#labelRotationZ");
-
+// This variable stores an array of objects with all shapes to be drawn
+var shapesToDraw = [];
+// This object will store camera information. Initialized in main
+var cameraInfo = {
+    angleRadiansX: undefined,
+    angleRadiansY: undefined,
+    angleRadiansZ: undefined,
+};
+// This object will store all page elements
+var pageElements = {};
+// This variable holds the id of the current selected shape
+var selectedShapeIndex = -1;
+//
+var numShapes = 0;
 // Loads the program and stores info
 var programList;
-
-// Main program
-function main() {
-
-    // Gets the gl context from the canvas
-    const gl = document.querySelector("#tela-desenho").getContext("webgl");
-
-    programList = createProgramList(gl)
-
-    var then = 0.0;
-    function render(now){
-        now *= 0.001;
-        const deltaTime = now - then;
-        then = now;
-
-        drawScene(gl, objectsToDraw, deltaTime);
-
-        requestAnimationFrame(render);
-    }   
-    requestAnimationFrame(render);
-
-
-    // Sets the handler for the sliders
-    colorSelector.addEventListener("input", function(){
-
-        const redHex = colorSelector.value[1] + colorSelector.value[2];
-        const redInt = parseInt(redHex, 16);
-        const red = redInt / 255;
-        const greenHex = colorSelector.value[3] + colorSelector.value[4];
-        const greenInt = parseInt(greenHex, 16);
-        const green = greenInt / 255;
-        const blueHex = colorSelector.value[5] + colorSelector.value[6];
-        const blueInt = parseInt(blueHex, 16);
-        const blue = blueInt / 255;
-        const alpha = 1.0;
-
-        const newValue = [red, green, blue, alpha];
-
-        if(objectsToDraw.length > 0) {
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.colorArray = newValue;
-        }
-    });
-    sliderTransX.addEventListener("input", function(){
-
-        const newValue = parseFloat(sliderTransX.value);
-        labelTransX.innerHTML = Number((newValue).toFixed(1));
-
-        if(objectsToDraw.length > 0) {
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.translationArray[0] = newValue;
-        }
-    });
-    sliderTransY.addEventListener("input", function(){
-        
-        const newValue = parseFloat(sliderTransY.value);
-        labelTransY.innerHTML = Number((newValue).toFixed(1));
-
-        if(objectsToDraw.length > 0) {
-
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.translationArray[1] = newValue;
-        }
-    });
-    sliderTransZ.addEventListener("input", function(){
-
-        const newValue = parseFloat(sliderTransZ.value);
-        labelTransZ.innerHTML = Number((newValue).toFixed(1));
-
-        if(objectsToDraw.length > 0) {
-
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.translationArray[2] = newValue-9;
-        }
-    });
-    sliderScaleX.addEventListener("input", function(){
-        
-        const newValue = parseFloat(sliderScaleX.value);
-        labelScaleX.innerHTML = Number((newValue).toFixed(1));
-
-        if(objectsToDraw.length > 0) {
-
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.scaleArray[0] = newValue;
-        }
-    });
-    sliderScaleY.addEventListener("input", function(){
-
-        const newValue = parseFloat(sliderScaleY.value);
-        labelScaleY.innerHTML = Number((newValue).toFixed(1));
-
-        if(objectsToDraw.length > 0) {
-
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.scaleArray[1] = newValue;
-        }
-    });
-    sliderScaleZ.addEventListener("input", function(){
-
-        const newValue = parseFloat(sliderScaleZ.value);
-        labelScaleZ.innerHTML = Number((newValue).toFixed(1));
-
-        if(objectsToDraw.length > 0) {
-
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.scaleArray[2] = newValue;
-        }
-    });
-    sliderRotationX.addEventListener("input", function(){
-
-        const newValue = parseFloat(sliderRotationX.value) * (Math.PI/180);
-        labelRotationX.innerHTML = Math.round(sliderRotationX.value);
-
-        if(objectsToDraw.length > 0) {
-
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.rotationArray[0] = newValue;
-        }
-    });
-    sliderRotationY.addEventListener("input", function(){
-
-        const newValue = parseFloat(sliderRotationY.value) * (Math.PI/180);
-        labelRotationY.innerHTML = Math.round(sliderRotationY.value);
-
-        if(objectsToDraw.length > 0) {
-
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.rotationArray[1] = newValue;
-        }
-    });
-    sliderRotationZ.addEventListener("input", function(){
-
-        const newValue = parseFloat(sliderRotationZ.value) * (Math.PI/180);
-        labelRotationZ.innerHTML = Math.round(sliderRotationZ.value);
-
-        if(objectsToDraw.length > 0) {
-
-            const drawnObject = objectsToDraw[objectsToDraw.length-1];
-            drawnObject.objectData.rotationArray[2] = newValue;
-        }
-    });
+// Array with all page element info
+// This is used to associate the id of 
+// a page element, a label and its data
+var pageElementsInfo = [
+    {
+        id: "colorHueSelector",
+        label: "labelColorHueSelector",
+        valueDisplay: "",
+    },
+    {
+        id: "sliderTransX",
+        label: "labelTransX",
+        valueDisplay: "valueTransX",
+    },
+    {
+        id: "sliderTransY",
+        label: "labelTransY",
+        valueDisplay: "valueTransY",
+    },
+    {
+        id: "sliderTransZ",
+        label: "labelTransZ",
+        valueDisplay: "valueTransZ",
+    },
+    {
+        id: "sliderScaleX",
+        label: "labelScaleX",
+        valueDisplay: "valueScaleX",
+    },
+    {
+        id: "sliderScaleY",
+        label: "labelScaleY",
+        valueDisplay: "valueScaleY",
+    },
+    {
+        id: "sliderScaleZ",
+        label: "labelScaleZ",
+        valueDisplay: "valueScaleZ",
+    },
+    {
+        id: "sliderRotationX",
+        label: "labelRotationX",
+        valueDisplay: "valueRotationX",
+    },
+    {
+        id: "sliderRotationY",
+        label: "labelRotationY",
+        valueDisplay: "valueRotationY",
+    },
+    {
+        id: "sliderRotationZ",
+        label: "labelRotationZ",
+        valueDisplay: "valueRotationZ",
+    },
+    {
+        id: "sliderCameraX",
+        label: "labelCameraX",
+        valueDisplay: "valueCameraX",
+    },
+    {
+        id: "sliderCameraY",
+        label: "labelCameraY",
+        valueDisplay: "valueCameraY",
+    },
+    {
+        id: "sliderCameraZ",
+        label: "labelCameraZ",
+        valueDisplay: "valueCameraZ",
+    },
+    {
+        id: "buttonCreate",
+        label: "",
+        valueDisplay: "",
+    },
+    {
+        id: "buttonRemove",
+        label: "",
+        valueDisplay: "",
+    },
+    {
+        id: "selectorShape",
+        label: "",
+        valueDisplay: "",
+    },
+];
 
 
-    // Handles the Add button click
-    const btnAdicionar = document.querySelector("#criar-primitiva");
-    const shapeSelector = document.querySelector("#formas-seletor");
-    btnAdicionar.onclick = function (){
+// 
+function getShapeData(pageElementsInfo, pageElements) {
 
-        // Gets the data from the form
-        // Color
-        const redHex = colorSelector.value[1] + colorSelector.value[2];
-        const redInt = parseInt(redHex, 16);
-        const red = redInt / 255;
-        const greenHex = colorSelector.value[3] + colorSelector.value[4];
-        const greenInt = parseInt(greenHex, 16);
-        const green = greenInt / 255;
-        const blueHex = colorSelector.value[5] + colorSelector.value[6];
-        const blueInt = parseInt(blueHex, 16);
-        const blue = blueInt / 255;
-        const alpha = 1.0;
+    var shapeData = {};
 
-        // Translation
-        const translationX = parseFloat(sliderTransX.value);
-        const translationY = parseFloat(sliderTransY.value);
-        const translationZ = parseFloat(sliderTransZ.value);
+    pageElementsInfo.forEach(function(element){
 
-        // Scale
-        const scaleX = parseFloat(sliderScaleX.value);
-        const scaleY = parseFloat(sliderScaleY.value);
-        const scaleZ = parseFloat(sliderScaleZ.value);
+        var type = pageElements[element.id].type;
+        var dataType = removeFirstWord(element.id);
+        var data;
 
-        // Rotation
-        const rotationX = parseFloat(sliderRotationX.value) * (Math.PI / 180);
-        console.log(rotationX);
-        const rotationY = parseFloat(sliderRotationY.value) * (Math.PI / 180);
-        console.log(rotationY);
-        const rotationZ = parseFloat(sliderRotationZ.value) * (Math.PI / 180);
-        console.log(rotationZ);
-
-        const objData = {
-            colorArray: [red, green, blue, alpha],
-            // * * * * REMOVER -6 
-            translationArray: [translationX, translationY, translationZ - 9],
-            scaleArray: [scaleX, scaleY, scaleZ],
-            rotationArray: [rotationX, rotationY, rotationZ],
-        };
-
-        // Creates a buffer based on selected shader=pe
-        const selectedShapeIndex = shapeSelector.selectedIndex;
-        const selectedShape = shapeSelector.options[selectedShapeIndex].value;
-        var programInfo;
-        var newShape;
-        switch(selectedShapeIndex){
-            case 0:
-                newShape = shapes.triangle;
-                programInfo = programList.shaderProgramGeneric;
+        switch(type) {
+            case "slider":
+                data = pageElements[element.id].element.value;
                 break;
-            case 1:
-                newShape = shapes.square;
-                programInfo = programList.shaderProgramGeneric;
-                break;
-            case 2:
-                newShape = shapes.circle;
-                programInfo = programList.shaderProgramCircle;
-                break;
-            case 3:
-                newShape = shapes.cube;
-                programInfo = programList.shaderProgramGeneric;
-                break;
-            case 4:
-                newShape = shapes.pyramid;
-                programInfo = programList.shaderProgramGeneric;
+            case "color":
+                data = hexRgbaToArray(pageElements[element.id].element.value);
                 break;
             default:
-                newShape = shapes.square;
-                programInfo = programList.shaderProgramGeneric;
                 break;
         }
+        
+        if(data != undefined)
+            shapeData[dataType] = data;
+    });
 
-        const newBuffer = createBuffer(gl, newShape, objData.colorArray);
-
-        // Pushes a new shape into objecs array
-        objectsToDraw.push({
-            programInfo: programInfo,
-            bufferInfo: newBuffer,
-            objectData: objData,
-        });
-    };
-
-    // Handles the delete button click 
-    const btnRemover = document.querySelector("#apagar-primitiva");
-    btnRemover.onclick = function (){
-        objectsToDraw.pop();
-    };
+    return shapeData;
 }
+
+// This functions takes the data from a slider and updates 
+// its label and data destination
+function updateSlider(sliderElement, sliderLabel, dataDestination) {
+
+    // Takes the new data from the slider 
+    const newData = sliderElement.value;
+
+    // Updates the slider's label
+    if(newValue > -100 || newValue < 100) 
+        sliderLabel.innerHTML = Number((newValue).toFixed(1));
+    else 
+        sliderLabel.innerHTML = Number((newValue).toFixed(0));
+
+    // Checks it there is a shape to be updated
+    if (numShapes > 0) {
+        dataDestination = newData;
+    }
+    
+}
+
+
 
 window.onload = main;
