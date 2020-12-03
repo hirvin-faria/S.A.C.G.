@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <title>S.A.C.G. - Módulo de Conteúdos</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!--bootstrap css - v4.3.1-->
+        <link rel="stylesheet" href="bootstrap-4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/scga.css">
+        <link rel="stylesheet" href="css/modulo-conteudo.css">
+    </head>
+
+    <body>
+        <!-- Inicio do Cabeçalho -->
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark navbar-principal-color">
+                <a class="navbar-brand" href="index.html">S.A.C.G.</a>
+
+                <div>
+                    <button class="btn botao-navbar-sec" id="menu-toggle">Menu Lateral</button>
+                </div>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="index.html">Início<span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://github.com/hirvin-faria/S.A.C.G.">GitHub</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Fim do Cabeçalho -->
+
+        <!-- Inicio do Conteúdo da Aplicação -->
+        <div class="d-flex" id="wrapper">
+            <div class="border-right bg-light" id="sidebar-wrapper">
+                <div class="sidebar-heading">Conteúdo</div>
+                <div class="list-group list-group-flush">
+                    <a href="modulo-conteudo.html" class="list-group-item list-group-item-action bg-light">Modulo de Conteúdo</a>
+                    <a href="historico-computacao-grafica.html" class="list-group-item list-group-item-action bg-light">Histórico da Computação Gráfica</a>
+                </div>
+            </div>
+            <main id="page-content-wrapper">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-light">
+                        <li class="breadcrumb-item"><a href="index.html">Inicio</a></li>
+                        <li class="breadcrumb-item active"><a href="modulo-conteudo.html">Conteudos</a></li>
+                    </ol>
+                </nav>
+                <section class="container-fluid mt-4">
+                    <h2>Histórico da Computação Gráfica</h2>
+
+                    Na década de 1950 surgiram os  primeiros computadores com recursos gráficos, porém eles eram de uso exclusivo em instituições acadêmicas, militares e industrias. (1)[1.1 P1]
+                    <br>
+                    Foi no ano de 1975 que surgiu o primeiro computador com interface visual. Nesta década a computação gráfica passou a ser considerada uma área dentro da ciência da computação. (1)[1.1 P2]
+                    <br>
+                    Ao longo dos anos 80 houveram várias tentativas de normalizar a escrita dos programas gráficos (1)[1.1 P3], 
+                    porém foi com o surgimento do OpenGL em 1990 que o uso de recursos gráficos se consolidou nas linguagens de programação e a consequente 
+                    massificação da computação nos computadores pessoais. (1)[1.1 P4].
+                    <br>
+                    A partir da década houve uma grande diversificação dos recursos gráficos se deve ao surgimento de novos dispositivos de captura e uso amplo de câmeras, 
+                    assim como novas formas de interação com os dispositivos. (1)[1.1 P5]
+
+                    <br><br>
+                    (1) CONCI, Aurra. AZEVEDO, Eduardo. Computação Gráfica: Teoria e Prática Volume 1
+                    1.ed Elsevier 2007. 360p.
+                    - Minha Biblioteca
+                    Histórico da Computação Gráfica
+                    <br>
+                    (2) M. Cohen, I.H. Manssour. OpenGL - Uma Abordagem Prática e Objetiva. São Paulo: Novatec, 2006, , pág 486.
+
+                </section>
+            </main>
+        </div>
+
+        <!-- <footer class="text-white p-4 rodape-bg-color">
+            <div class="container">
+                <div class="row">
+                    <div class="col-6 border-left border-light">
+                        <p class="m-0 text-left"><a href="https://github.com/hirvin-faria/S.A.C.G.">GitHub</a></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 pt-4">
+                        <p class="m-0 text-center">Sistema em Desenvolvimento</p>
+                    </div>
+                </div>
+            </div>
+        </footer> -->
+
+        <!--bootstrap js - v4.3.1-->
+        <script src="jquery-3.4.1/jquery-3.4.1.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="bootstrap-4.3.1/js/bootstrap.min.js"></script>
+            
+        <script>
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        </script>
+    </body>
+</html>
